@@ -1,0 +1,11 @@
+{
+  "slug": "image-vision",
+  "name": "Image Vision Bridge",
+  "displayName": "Image Vision Bridge",
+  "description": "Bridge local Ollama vision models into text-only AI assistants. When an image appears in conversation and the current model lacks native vision, this skill automatically describes the image in text — no model switching required.",
+  "description_zh": "本地视觉模型桥接——当对话中出现图片而当前模型不支持多模态时，自动调用本地 Ollama 视觉模型（qwen3.5:4b）读取图片并用文字描述返回，无需切换模型。",
+  "category": "ai-agent",
+  "tags": ["vision", "ollama", "multimodal", "image", "local", "bridge", "qwen", "llava"],
+  "requires_api_key": false,
+  "version": "1.0.0"
+}
