@@ -1,11 +1,14 @@
 # 🖼️ Image Vision Bridge
 
-> **Let text-only AI models "see" images — using a local vision model as a bridge. No API keys. No cloud. No model switching.**
+> **DeepSeek can't see images. Now it can — locally, privately, for free.**
+>
+> The missing vision layer for DeepSeek-V4, DeepSeek-R1, o1, and every text-only reasoning model.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Ollama](https://img.shields.io/badge/Ollama-Ready-black?logo=ollama)](https://ollama.com)
 [![Python 3.9+](https://img.shields.io/badge/Python-3.9+-green?logo=python)](https://python.org)
 [![Model: qwen3.5](https://img.shields.io/badge/Vision-qwen3.5:4b-orange)](https://ollama.com/library/qwen3.5)
+[![DeepSeek Compatible](https://img.shields.io/badge/DeepSeek-Compatible-4B93E2)](https://deepseek.com)
 
 ---
 
@@ -15,15 +18,62 @@
 
 ## English
 
-### The Problem
+### Born for DeepSeek
+
+| Your setup | The pain | The fix |
+|---|---|---|
+| DeepSeek-V4 Pro + WorkBuddy | "当前模型不支持图片输入" — blocked | Paste screenshot → skill reads it → you keep coding |
+| DeepSeek-R1 via Ollama | Amazing reasoning, zero vision | Local bridge gives it eyes |
+| Any text-only model | Must switch models to read a screenshot | Never switch again |
+
+**DeepSeek is arguably the best reasoning model on the planet. Its one weakness: it can't see. This skill fixes that.**
+
+### How It Works (30 seconds)
+
+```
+You: [paste a screenshot of a bug report]
+       │
+       ▼
+DeepSeek: "I can't see images" ❌
+       │
+       ▼ (with Image Vision Bridge)
+qwen3.5:4b (local GPU): "The screenshot shows a 500 error page
+       with stack trace at line 42: NullPointerException..."
+       │
+       ▼
+DeepSeek: "The NullPointerException is at UserService.java:42.
+       Let's check — it's likely because the user object isn't
+       initialized before calling getProfile(). Here's the fix:" ✅
+```
+
+### What It Looks Like in Practice
+
+**Debugging from a screenshot:**
+> *You paste a screenshot of an error page*
+> → Skill describes: *"React error boundary showing 'Cannot read properties of undefined' at Dashboard.tsx line 156"*
+> → DeepSeek: *"That's a missing null check. Add `data?.metrics ?? []` at line 156."*
+
+**Reading a UI mockup:**
+> *You paste Figma export*
+> → Skill describes: *"A 3-column dashboard with header nav, sidebar filters, and a data table with 6 columns: Name, Status, Priority, Date, Assignee, Actions."*
+> → DeepSeek: *"I'll scaffold this as a React component with Tailwind. Here's the structure..."*
+
+**Extracting text from a PDF screenshot:**
+> *You paste a section of a research paper*
+> → Skill describes full text content
+> → DeepSeek: *"Here's a summary and Chinese translation of this section..."*
+
+### The Problem (Solved)
 
 You're using a powerful reasoning model (DeepSeek-V4, DeepSeek-R1, o1, Qwen-Max...) but it **can't read images**. Every time you need image understanding, you have to switch to a multimodal model, breaking your workflow. Frustrating.
 
 ### The Solution
 
-**Image Vision Bridge** is a lightweight skill for AI coding assistants (WorkBuddy, CodeBuddy, Claude Code) that uses a **local** Ollama vision model to describe images in text. Your text-only model gets the description injected back into the conversation — it "sees" the image without you ever switching models.
+**Image Vision Bridge** is a lightweight skill for AI coding assistants (WorkBuddy, CodeBuddy, Claude Code, Cursor) that uses a **local** Ollama vision model to describe images in text. Your text-only model gets the description injected back into the conversation — it "sees" the image without you ever switching models.
 
 > 💡 **All processing stays on your machine. No API keys. No data leaves your computer.**
+>
+> 🧠 **Optimized for DeepSeek-V4 Pro and DeepSeek-R1 on WorkBuddy.** Works around the "IMAGE_NOT_SUPPORTED" restriction.
 
 ### Features
 
@@ -129,15 +179,61 @@ python scripts/describe_image.py photo.jpg --model qwen3.5:9b
 
 ## 中文
 
+### 🎯 为 DeepSeek 而生
+
+| 你的配置 | 痛点 | 解决 |
+|---|---|---|
+| DeepSeek-V4 Pro + WorkBuddy | "当前模型不支持图片输入" — 直接拦截 | 截图 → skill 读图 → 继续写代码 |
+| DeepSeek-R1 via Ollama | 推理能力无敌，但眼睛是瞎的 | 本地桥接给它装上眼睛 |
+| 任何纯文本推理模型 | 看张图就要切模型 | 再也不用切了 |
+
+**DeepSeek 可能是地球上最强的推理模型。它唯一的短板：不能看图。这个 skill 补的就是这个短板。**
+
+### 实战效果（30 秒看完）
+
+```
+你：[粘贴一张报错截图]
+       │
+       ▼
+DeepSeek："我看不了图" ❌
+       │
+       ▼ （有了这个 skill 之后）
+qwen3.5:4b（本地 GPU）："截图显示一个 500 错误页面，
+       堆栈信息显示 NullPointerException 在 UserService.java:42..."
+       │
+       ▼
+DeepSeek："这个空指针在 UserService.java:42 行，应该是
+       user 对象没初始化就调了 getProfile()。修复方案：" ✅
+```
+
+### 真实场景举例
+
+**对着截图修 bug：**
+> 你粘贴一张浏览器报错截图
+> → skill 读图：*"React 错误边界显示 'Cannot read properties of undefined'，位置 Dashboard.tsx 第 156 行"*
+> → DeepSeek：*"这里缺了空值检查，把 `data.metrics` 改成 `data?.metrics ?? []` 就行"*
+
+**对着设计稿写前端：**
+> 你粘贴 Figma 导出的设计稿
+> → skill 读图：*"三栏 Dashboard 布局，顶部导航、左侧筛选栏、中间数据表格有 Name/Status/Priority 等 6 列"*
+> → DeepSeek：*"我用 React + Tailwind 给你搭一个，结构如下..."*
+
+**对着 PDF 截图做翻译：**
+> 你粘贴一篇英文论文的截图
+> → skill 读图：完整提取原文
+> → DeepSeek：*"以下是中文翻译和章节摘要..."*
+
 ### 痛点
 
 你正在用 DeepSeek-V4、DeepSeek-R1、Qwen-Max 这类超强推理模型干活，但它**读不了图片**。每次要看图都得切模型，工作流被打断，烦得要死。
 
 ### 解决方案
 
-**Image Vision Bridge** 是一个 AI 编程助手（WorkBuddy / CodeBuddy / Claude Code）的技能插件——用**本地** Ollama 视觉模型把图片翻译成文字描述，再自动注回对话里。你的纯文本模型就"看见"图片了，全程不用切换。
+**Image Vision Bridge** 是一个 AI 编程助手（WorkBuddy / CodeBuddy / Claude Code / Cursor）的技能插件——用**本地** Ollama 视觉模型把图片翻译成文字描述，再自动注回对话里。你的纯文本模型就"看见"图片了，全程不用切换。
 
 > 💡 **所有处理都在你本地机器上完成，不需要 API Key，数据不离开你的电脑。**
+>
+> 🧠 **专为 DeepSeek-V4 Pro 和 DeepSeek-R1 在 WorkBuddy 上优化。** 绕过 "IMAGE_NOT_SUPPORTED" 限制。
 
 ### 特性
 
@@ -234,28 +330,30 @@ python scripts/describe_image.py photo.jpg --model qwen3.5:9b
 
 ---
 
-## Install via SkillHub
+## Install
 
 ```bash
-# Coming soon — submit to SkillHub marketplace
-# For now, clone and copy:
+# From GitHub
 git clone https://github.com/duchenyu/image-vision-bridge.git
 cp -r image-vision-bridge ~/.workbuddy/skills/image-vision
+
+# Or from ClawHub
+clawhub install duchenyu/image-vision-bridge
 ```
 
 ## FAQ
 
 **Q: Does this work with any AI assistant?**
-A: Yes — it's designed for WorkBuddy/CodeBuddy skill system, but the core script (`describe_image.py`) is a standalone Python script. Any assistant that can run shell commands can use it.
+A: Yes — designed for WorkBuddy/CodeBuddy skill system. The core script is standalone Python — any assistant that runs shell commands can use it. Tested with DeepSeek-V4 Pro, DeepSeek-R1, and Qwen-Max.
 
 **Q: How fast is it?**
 A: First call: ~15-30 sec (model loads into VRAM). Subsequent calls: 2-5 sec. qwen3.5:4b is specifically optimized for fast inference.
 
-**Q: What GPU do I need?**
-A: qwen3.5:4b needs ~4 GB VRAM. Works on RTX 2060+, GTX 1660 Ti+, Apple M1+, or any GPU with 4+ GB. Falls back to CPU if VRAM is insufficient (slower but works).
+**Q: Do I need a powerful GPU?**
+A: qwen3.5:4b needs ~4 GB VRAM. Works on RTX 2060+, GTX 1660 Ti+, Apple M1+, or any GPU with 4+ GB. Falls back to CPU if VRAM is insufficient.
 
-**Q: Can I use it without Ollama?**
-A: The script is easy to adapt. Swap `call_ollama_vision()` for OpenAI API, Claude API, or any other vision endpoint.
+**Q: Why not just use GPT-4V or Claude instead?**
+A: Because you want DeepSeek's reasoning for coding. GPT-4V is great at seeing, but DeepSeek is better at thinking. This skill gives you both — DeepSeek's reasoning + local vision.
 
 **Q: Is my data safe?**
 A: Yes. Everything runs locally — the image is read from disk, base64-encoded, sent to localhost, and processed on your GPU. Nothing leaves your machine.
@@ -278,5 +376,5 @@ MIT — use it, modify it, ship it. No strings attached.
 ---
 
 <p align="center">
-  <sub>Made for people who hate switching models just to read a screenshot.</sub>
+  <sub>DeepSeek is the brain. This is the eyes. 🧠👁️</sub>
 </p>
