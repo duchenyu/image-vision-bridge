@@ -239,8 +239,8 @@ python scripts/describe_image.py photo.jpg --model qwen3.5:9b
 ```bash
 # Coming soon — submit to SkillHub marketplace
 # For now, clone and copy:
-git clone https://github.com/YOUR_USERNAME/image-vision.git
-cp -r image-vision ~/.workbuddy/skills/image-vision
+git clone https://github.com/duchenyu/image-vision-bridge.git
+cp -r image-vision-bridge ~/.workbuddy/skills/image-vision
 ```
 
 ## FAQ
