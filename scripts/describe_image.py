@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 """
-Local Vision Model Bridge — Describe images using a local Ollama vision model.
+本地视觉模型图片描述桥接脚本
+通过 Ollama 调用本地视觉模型（qwen3.5:4b）读取图片并返回文字描述。
 
-Usage:
-    python describe_image.py <image_path> [--model qwen3.5:4b] [--prompt "custom prompt"]
+用法:
+    python describe_image.py <图片路径> [--model qwen3.5:4b] [--prompt "自定义提示词"]
 
-Output: Plain text image description printed to stdout.
+输出: 纯文本图片描述，直接打印到 stdout
 """
 
 import sys
@@ -18,29 +19,40 @@ import urllib.error
 
 
 OLLAMA_API = "http://127.0.0.1:11434/api/chat"
-DEFAULT_MODEL = "qwen3.5:4b"
-DEFAULT_PROMPT = (
-    "Please describe this image in detail. Include: main objects, scene, "
-    "text content, colors, layout, atmosphere — everything you can see."
-)
+DEFAULT_MODEL = "qwen3.5:4b"  # 轻量化视觉模型
+DEFAULT_PROMPT = "请详细描述这张图片的内容。包括：主体对象、场景、文字、颜色、布局、氛围等所有你能看到的细节。"
 
 
 def encode_image(image_path: str) -> str:
-    """Read an image file and encode it as base64."""
+    """读取图片并编码为 base64"""
     if not os.path.isfile(image_path):
-        print(f"[ERROR] Image file not found: {image_path}", file=sys.stderr)
+        print(f"[ERROR] 图片文件不存在: {image_path}", file=sys.stderr)
         sys.exit(1)
 
     try:
         with open(image_path, "rb") as f:
             return base64.b64encode(f.read()).decode("utf-8")
     except Exception as e:
-        print(f"[ERROR] Failed to read image: {e}", file=sys.stderr)
+        print(f"[ERROR] 读取图片失败: {e}", file=sys.stderr)
         sys.exit(1)
 
 
+def get_mime_type(image_path: str) -> str:
+    """根据扩展名返回 MIME 类型"""
+    ext = os.path.splitext(image_path)[1].lower()
+    mime_map = {
+        ".png": "image/png",
+        ".jpg": "image/jpeg",
+        ".jpeg": "image/jpeg",
+        ".gif": "image/gif",
+        ".webp": "image/webp",
+        ".bmp": "image/bmp",
+    }
+    return mime_map.get(ext, "image/png")
+
+
 def call_ollama_vision(image_path: str, model: str, prompt: str) -> str:
-    """Send image to Ollama vision model and return text description."""
+    """调用 Ollama 视觉模型"""
     b64 = encode_image(image_path)
 
     payload = {
@@ -63,40 +75,28 @@ def call_ollama_vision(image_path: str, model: str, prompt: str) -> str:
         )
         with urllib.request.urlopen(req, timeout=120) as resp:
             result = json.loads(resp.read().decode("utf-8"))
-            content = result.get("message", {}).get("content", "")
-            return content.strip()
+            msg = result.get("message", {})
+            content = msg.get("content", "").strip()
+            # qwen3.5 thinking 模式: content 可能为空，从 thinking 字段取
+            if not content:
+                content = msg.get("thinking", "").strip()
+            return content
     except urllib.error.URLError as e:
-        print(
-            f"[ERROR] Cannot connect to Ollama (is it running?): {e}",
-            file=sys.stderr,
-        )
+        print(f"[ERROR] 连接 Ollama 失败 (请确认 Ollama 正在运行): {e}", file=sys.stderr)
         sys.exit(1)
     except Exception as e:
-        print(f"[ERROR] Vision model call failed: {e}", file=sys.stderr)
+        print(f"[ERROR] 调用视觉模型失败: {e}", file=sys.stderr)
         sys.exit(1)
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Describe an image using a local Ollama vision model."
-    )
-    parser.add_argument("image", help="Path to the image file")
-    parser.add_argument(
-        "--model",
-        default=DEFAULT_MODEL,
-        help=f"Ollama model name (default: {DEFAULT_MODEL})",
-    )
-    parser.add_argument(
-        "--prompt",
-        default=DEFAULT_PROMPT,
-        help="Custom prompt for the vision model",
-    )
+    parser = argparse.ArgumentParser(description="用本地视觉模型描述图片")
+    parser.add_argument("image", help="图片文件路径")
+    parser.add_argument("--model", default=DEFAULT_MODEL, help=f"Ollama 模型名 (默认: {DEFAULT_MODEL})")
+    parser.add_argument("--prompt", default=DEFAULT_PROMPT, help="自定义提示词")
     args = parser.parse_args()
 
-    print(
-        f"[INFO] Analyzing image with {args.model}: {args.image}",
-        file=sys.stderr,
-    )
+    print(f"[INFO] 正在用 {args.model} 分析图片: {args.image}", file=sys.stderr)
     description = call_ollama_vision(args.image, args.model, args.prompt)
     print(description)
 
