@@ -61,16 +61,7 @@ python scripts/describe_image.py "<图片路径>"
 
 - ✅ Ollama 已安装并运行
 - ✅ qwen3.5:4b 已拉取（已就绪）
-- ✅ Python 3.13 (managed)
-
-## 图片来源说明
-
-本 skill 接受以下方式的图片输入：
-- 用户在对话中发送/粘贴的图片文件
-- 用户指定的本地文件路径
-- 通过 `scripts/clip_snap.py`（可选辅助工具）从剪贴板保存的图片
-
-clip_snap.py 是一个独立的可选工具，用于在部分平台图像上传受限时将剪贴板图片保存为本地文件。不影响 skill 核心功能。
+- ✅ Python 3.9+
 
 ## 故障排除
 
