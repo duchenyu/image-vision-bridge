@@ -22,7 +22,7 @@ privacy: >
 ## 使用方式
 
 ```bash
-C:/Users/djr82/.workbuddy/binaries/python/versions/3.13.12/python.exe "C:/Users/djr82/.workbuddy/skills/image-vision/scripts/describe_image.py" "<图片路径>"
+python scripts/describe_image.py "<图片路径>"
 ```
 
 ### 可选参数
@@ -75,7 +75,11 @@ clip_snap.py 是一个独立的可选工具，用于在部分平台图像上传�
 ## 故障排除
 
 如果 Ollama 模型崩溃（"llama-server process has terminated"），需要重启 Ollama 服务：
-```powershell
+```bash
+# macOS / Linux
+pkill ollama && ollama serve &
+
+# Windows (PowerShell)
 Get-Process -Name "ollama*" -ErrorAction SilentlyContinue | Stop-Process -Force
-Start-Process "C:\Users\djr82\AppData\Local\Programs\Ollama\ollama.exe" -ArgumentList "serve" -WindowStyle Hidden
+Start-Process ollama -ArgumentList "serve" -WindowStyle Hidden
 ```
