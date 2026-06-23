@@ -1,15 +1,23 @@
 ---
 name: image-vision
-description: 本地图片视觉理解桥接。当用户发送图片时，调用本地 Ollama 视觉模型（qwen3.5:4b）读取图片内容，以文字描述返回，让不具备多模态能力的推理模型也能"看见"图片。
+description: 本地图片视觉理解桥接。当用户明确要求分析、描述或理解图片内容时，调用本地 Ollama 视觉模型（qwen3.5:4b）读取图片并以文字描述返回，让不具备多模态能力的推理模型也能"看见"图片。
 trigger:
-  - 用户发送了图片文件（png/jpg/gif/webp/bmp）
-  - 对话中出现图片文件路径
-  - 用户要求分析、描述、理解图片内容
+  - 用户明确要求分析、描述、阅读、理解图片内容
+  - 用户发送了图片文件并询问相关内容
+permissions:
+  shell: true
+  files: true
+  network: true
+privacy: >
+  图片文件会被读取并以 base64 编码发送到本地 Ollama API（127.0.0.1:11434）。
+  所有处理在本机完成，数据不离开你的设备。
 ---
 
 # Image Vision Bridge
 
-本地视觉桥接 —— 当对话中出现图片时，调用 Ollama 本地视觉模型（qwen3.5:4b / qwen3.5:9b）读图并返回文字描述。
+本地视觉桥接 —— 当用户明确要求分析图片时，调用 Ollama 本地视觉模型（qwen3.5:4b / qwen3.5:9b）读图并返回文字描述。
+
+⚠️ **隐私提示**: 图片内容会被读取并发送到本地 Ollama 服务进行处理。所有数据仅在本机传输，不上传云端。
 
 ## 使用方式
 
@@ -40,18 +48,14 @@ C:/Users/djr82/.workbuddy/binaries/python/versions/3.13.12/python.exe "C:/Users/
 
 # 提取代码
 --prompt "完整提取截图中的代码，保留缩进和格式。"
-
-# 中文场景
---prompt "请用中文详细描述这张图片的内容。"
 ```
 
 ## 工作流程
 
-1. 用户发送图片 → 图片路径出现在对话上下文中
-2. 检测到图片 → 自动调用本 skill
-3. 脚本将图片 base64 编码 → 发送到 Ollama API
-4. qwen3.5 视觉模型分析图片 → 返回文字描述
-5. 基于描述继续完成任务
+1. 用户明确要求分析图片 → 检测到图片路径
+2. 脚本将图片 base64 编码 → 发送到本地 Ollama API（127.0.0.1）
+3. qwen3.5 视觉模型分析图片 → 返回文字描述
+4. 描述注入对话 → 基于描述继续完成任务
 
 ## 前置条件
 
@@ -59,20 +63,14 @@ C:/Users/djr82/.workbuddy/binaries/python/versions/3.13.12/python.exe "C:/Users/
 - ✅ qwen3.5:4b 已拉取（已就绪）
 - ✅ Python 3.13 (managed)
 
-## 绕过模型限制
+## 图片来源说明
 
-如果 WorkBuddy 拦截图片发送（提示"当前模型不支持图片输入"），使用剪贴板快照：
+本 skill 接受以下方式的图片输入：
+- 用户在对话中发送/粘贴的图片文件
+- 用户指定的本地文件路径
+- 通过 `scripts/clip_snap.py`（可选辅助工具）从剪贴板保存的图片
 
-```bash
-# 1. 截图到剪贴板（Win+Shift+S）
-# 2. 运行快照脚本
-python "C:/Users/djr82/.workbuddy/skills/image-vision/scripts/clip_snap.py"
-# 输出: C:\Users\djr82\.workbuddy\clip-snaps\snap_xxx.png
-
-# 3. 路径已自动复制到剪贴板，Ctrl+V 粘贴到聊天框即可
-```
-
-Windows 用户可直接双击 `scripts/快照剪贴板.bat`，零打字。
+clip_snap.py 是一个独立的可选工具，用于在部分平台图像上传受限时将剪贴板图片保存为本地文件。不影响 skill 核心功能。
 
 ## 故障排除
 

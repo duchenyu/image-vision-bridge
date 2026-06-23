@@ -49,21 +49,23 @@ def save_clipboard_image(output_dir: str, quiet: bool = False) -> str | None:
             return None
         img.save(filepath, "PNG")
     except ImportError:
-        # Pillow 不可用时，尝试用 PowerShell 读剪贴板
+        # Pillow 不可用时，通过 stdin 将路径安全传入 PowerShell
         import subprocess
 
-        ps_script = f'''
+        ps_script = r"""
+$path = $input | Out-String | ForEach-Object { $_.Trim() }
 Add-Type -AssemblyName System.Windows.Forms
 $img = [System.Windows.Forms.Clipboard]::GetImage()
-if ($img) {{
-    $img.Save("{filepath.replace(chr(92), chr(92)+chr(92))}", [System.Drawing.Imaging.ImageFormat]::Png)
+if ($img) {
+    $img.Save($path, [System.Drawing.Imaging.ImageFormat]::Png)
     Write-Output "OK"
-}} else {{
+} else {
     Write-Output "NO_IMAGE"
-}}
-'''
+}
+"""
         result = subprocess.run(
             ["powershell", "-NoProfile", "-Command", ps_script],
+            input=filepath,
             capture_output=True, text=True, timeout=10
         )
         if "NO_IMAGE" in result.stdout:
@@ -90,9 +92,11 @@ def copy_to_clipboard(text: str) -> bool:
     except ImportError:
         try:
             import subprocess
-            subprocess.run(
-                ["powershell", "-NoProfile", "-Command", f"Set-Clipboard -Value '{text}'"],
-                timeout=5
+            # 安全：通过 stdin 传递文本，避免注入
+            result = subprocess.run(
+                ["powershell", "-NoProfile", "-Command", "$txt = $input | Out-String; Set-Clipboard -Value $txt"],
+                input=text,
+                capture_output=True, text=True, timeout=5
             )
             return True
         except Exception:
