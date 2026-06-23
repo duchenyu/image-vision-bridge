@@ -22,7 +22,7 @@
 
 | Your setup | The pain | The fix |
 |---|---|---|
-| DeepSeek-V4 Pro + WorkBuddy | "当前模型不支持图片输入" — blocked | Paste screenshot → skill reads it → you keep coding |
+| DeepSeek-V4 Pro + WorkBuddy | Powerful reasoning, no vision | Send an image → skill describes it → keep coding |
 | DeepSeek-R1 via Ollama | Amazing reasoning, zero vision | Local bridge gives it eyes |
 | Any text-only model | Must switch models to read a screenshot | Never switch again |
 
@@ -183,7 +183,7 @@ python scripts/describe_image.py photo.jpg --model qwen3.5:9b
 
 | 你的配置 | 痛点 | 解决 |
 |---|---|---|
-| DeepSeek-V4 Pro + WorkBuddy | "当前模型不支持图片输入" — 直接拦截 | 截图 → skill 读图 → 继续写代码 |
+| DeepSeek-V4 Pro + WorkBuddy | 推理能力无敌，但读不了图 | 发张图 → skill 帮你读懂 → 继续写代码 |
 | DeepSeek-R1 via Ollama | 推理能力无敌，但眼睛是瞎的 | 本地桥接给它装上眼睛 |
 | 任何纯文本推理模型 | 看张图就要切模型 | 再也不用切了 |
 
@@ -232,8 +232,6 @@ DeepSeek："这个空指针在 UserService.java:42 行，应该是
 **Image Vision Bridge** 是一个 AI 编程助手（WorkBuddy / CodeBuddy / Claude Code / Cursor）的技能插件——用**本地** Ollama 视觉模型把图片翻译成文字描述，再自动注回对话里。你的纯文本模型就"看见"图片了，全程不用切换。
 
 > 💡 **所有处理都在你本地机器上完成，不需要 API Key，数据不离开你的电脑。**
->
-> 🧠 **专为 DeepSeek-V4 Pro 和 DeepSeek-R1 在 WorkBuddy 上优化。** 绕过 "IMAGE_NOT_SUPPORTED" 限制。
 
 ### 特性
 
